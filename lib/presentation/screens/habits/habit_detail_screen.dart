@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/habits/habit_providers.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/utils/date_utils.dart';
-import '../../core/utils/list_utils.dart';
-import '../../core/utils/logger.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../core/widgets/app_feedback.dart';
-import '../../core/widgets/app_section_header.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/widgets/confirm_dialog.dart';
-import '../../core/widgets/month_calendar.dart';
-import '../../domain/models/habit.dart';
-import '../../domain/services/habit_stats.dart';
+import '../../../application/habits/habit_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/list_utils.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/app_section_header.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/widgets/confirm_dialog.dart';
+import '../../../core/widgets/month_calendar.dart';
+import '../../../domain/models/habit.dart';
+import '../../../domain/services/habit_stats.dart';
 import '../../widgets/habit_check.dart';
 import '../../widgets/habit_week_strip.dart';
 
@@ -308,6 +308,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
 
   /// Archives (hides) or restores the habit. History is always preserved.
   Future<void> _toggleArchive(BuildContext context) async {
+    final habit = (ref.read(habitsProvider).valueOrNull ?? const <Habit>[])
+        .firstWhereOrNull((h) => h.id == widget.id);
+    if (habit == null) return;
     final wasArchived = habit.archived;
     try {
       await ref
@@ -371,7 +374,7 @@ class _StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(

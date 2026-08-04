@@ -18,6 +18,11 @@ class VyraStyle extends ThemeExtension<VyraStyle> {
   /// Card border. `null` means widgets fall back to their default border.
   final BorderSide? border;
 
+  /// Same border as [border] but as a [BoxBorder], ready for
+  /// `BoxDecoration.border`.
+  BoxBorder? get boxBorder =>
+      border == null ? null : Border.fromBorderSide(border!);
+
   /// A hard offset shadow (the NeoBrutalism look). `null` = soft/no shadow.
   final BoxShadow? hardShadow;
 

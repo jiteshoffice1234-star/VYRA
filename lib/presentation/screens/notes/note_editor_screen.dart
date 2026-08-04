@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/categories/category_providers.dart';
-import '../../application/notes/note_providers.dart';
-import '../../application/providers/app_providers.dart';
-import '../../application/tags/tag_providers.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/list_utils.dart';
-import '../../core/utils/logger.dart';
-import '../../core/widgets/app_feedback.dart';
-import '../../core/widgets/category_dialog.dart';
-import '../../core/widgets/color_dot.dart';
-import '../../core/widgets/tag_chip.dart';
-import '../../domain/models/category.dart';
-import '../../domain/models/checklist_item.dart';
-import '../../domain/models/note.dart';
+import '../../../application/categories/category_providers.dart';
+import '../../../application/notes/note_providers.dart';
+import '../../../application/providers/app_providers.dart';
+import '../../../application/tags/tag_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/list_utils.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/category_dialog.dart';
+import '../../../core/widgets/color_dot.dart';
+import '../../../core/widgets/tag_chip.dart';
+import '../../../domain/models/category.dart';
+import '../../../domain/models/checklist_item.dart';
+import '../../../domain/models/note.dart';
 
 class NoteEditorScreen extends ConsumerStatefulWidget {
   const NoteEditorScreen({super.key, this.id});
@@ -70,20 +70,21 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       context.pop();
       return;
     }
+    final loaded = note;
     setState(() {
-      _titleController.text = note.title;
-      _contentController.text = note.content;
-      _type = note.type;
+      _titleController.text = loaded.title;
+      _contentController.text = loaded.content;
+      _type = loaded.type;
       _colorIndex = AppConstants.noteColors
-          .indexOf(Color(note.color))
+          .indexOf(Color(loaded.color))
           .clamp(0, AppConstants.noteColors.length - 1)
           .toInt();
-      _categoryId = note.categoryId;
-      _isPinned = note.isPinned;
-      _isFavorite = note.isFavorite;
-      _originalCreatedAt = note.createdAt;
-      _tags = [...note.tags];
-      _items = [for (final i in note.items) i.copyWith()];
+      _categoryId = loaded.categoryId;
+      _isPinned = loaded.isPinned;
+      _isFavorite = loaded.isFavorite;
+      _originalCreatedAt = loaded.createdAt;
+      _tags = [...loaded.tags];
+      _items = [for (final i in loaded.items) i.copyWith()];
     });
   }
 
@@ -285,7 +286,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 color: noteColor.withValues(alpha: 0.12),
                 borderRadius:
                     BorderRadius.circular(VyraStyle.of(context).radius),
-                border: VyraStyle.of(context).border ??
+                border: VyraStyle.of(context).boxBorder ??
                     Border.all(color: noteColor.withValues(alpha: 0.25)),
               ),
               child: Column(
@@ -347,7 +348,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerHigh.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(VyraStyle.of(context).radius),
-                    border: VyraStyle.of(context).border ??
+                    border: VyraStyle.of(context).boxBorder ??
                         Border.all(
                           color: scheme.outlineVariant.withValues(alpha: 0.4),
                         ),

@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/habits/habit_providers.dart';
-import '../../application/journal/journal_providers.dart';
-import '../../application/notes/note_providers.dart';
-import '../../application/search/search_providers.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/logger.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../core/widgets/filter_pill.dart';
-import '../../core/widgets/highlighted_text.dart';
-import '../../core/widgets/app_section_header.dart';
-import '../../domain/models/category.dart';
-import '../../domain/models/search_result.dart';
+import '../../../application/habits/habit_providers.dart';
+import '../../../application/journal/journal_providers.dart';
+import '../../../application/notes/note_providers.dart';
+import '../../../application/search/search_providers.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/filter_pill.dart';
+import '../../../core/widgets/highlighted_text.dart';
+import '../../../core/widgets/app_section_header.dart';
+import '../../../domain/models/category.dart';
+import '../../../domain/models/search_result.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -139,6 +139,7 @@ class _HistoryView extends ConsumerWidget {
         return AppEmptyState(
           icon: Icons.error_outline,
           title: 'Could not load recent searches',
+          subtitle: 'Something went wrong while reading your history.',
           actionLabel: 'Retry',
           onAction: () => ref.invalidate(searchHistoryProvider),
         );
@@ -262,6 +263,7 @@ class _ResultsView extends ConsumerWidget {
               return AppEmptyState(
                 icon: Icons.error_outline,
                 title: 'Search failed',
+                subtitle: 'Something went wrong. Try again.',
                 actionLabel: 'Retry',
                 onAction: () => ref.invalidate(searchResultsProvider),
               );

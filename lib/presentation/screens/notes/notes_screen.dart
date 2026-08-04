@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/categories/category_providers.dart';
-import '../../application/notes/note_providers.dart';
-import '../../core/utils/debounce.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../core/widgets/filter_pill.dart';
-import '../../domain/models/category.dart';
+import '../../../application/categories/category_providers.dart';
+import '../../../application/notes/note_providers.dart';
+import '../../../core/utils/debounce.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/filter_pill.dart';
+import '../../../domain/models/category.dart';
 import '../../widgets/note_card.dart';
 
 class NotesScreen extends ConsumerStatefulWidget {

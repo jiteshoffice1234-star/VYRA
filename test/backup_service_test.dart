@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:vyra/core/database/app_database.dart';
 import 'package:vyra/data/repositories/journal_repository.dart';
 import 'package:vyra/data/repositories/tag_repository.dart';
@@ -13,26 +14,37 @@ import 'package:vyra/domain/models/mood.dart';
 class MemoryBackupStorage implements BackupStorage {
   final Map<String, String> _files = {};
 
+  Iterable<String> get files => _files.keys;
+
+  void forget(String name) => _files.remove(name);
+
   @override
   Future<Directory> directory() async => Directory.systemTemp;
 
   @override
   Future<void> write(String fileName, String contents) async {
     _files[fileName] = contents;
+    // Also write a real file so BackupService.restoreFile (which reads from
+    // disk) works against this harness.
+    final file = File('${Directory.systemTemp.path}/$fileName');
+    await file.writeAsString(contents);
   }
 
   @override
   Future<List<File>> list() async => [
-        for (final name in _files.keys)
-          File('${Directory.systemTemp.path}/$name'),
+        for (final name in _files.keys) fileFor(name),
       ];
 
   @override
   Future<void> delete(String path) async {
-    _files.remove(path.split('/').last);
+    _files.remove(path.split(RegExp(r'[\\/]')).last);
+    final file = File(path);
+    if (await file.exists()) await file.delete();
   }
 
-  File fileFor(String name) => File('${Directory.systemTemp.path}/$name');
+  /// Uses [p.join] (like the real storage) so paths match on Windows, where
+  /// mixing separators would otherwise make duplicate-path comparisons fail.
+  File fileFor(String name) => File(p.join(Directory.systemTemp.path, name));
 
   String? contentsOf(String name) => _files[name];
 }
@@ -53,6 +65,13 @@ void main() {
   });
 
   tearDown(() async {
+    // Remove any temp files the harness created so runs don't pollute
+    // Directory.systemTemp (filenames are second-granularity timestamps).
+    for (final name in storage.files.toList()) {
+      final file = storage.fileFor(name);
+      if (await file.exists()) await file.delete();
+      storage.forget(name);
+    }
     await database.close();
   });
 
@@ -75,8 +94,8 @@ void main() {
   test('export then restore round-trips the data', () async {
     await insertEntry('Alpha', entryTags: const ['work']);
 
-    final path = await service.export();
-    expect(storage.contentsOf(path.split('/').last), isNotNull);
+    final result = await service.export();
+    expect(storage.contentsOf(result.path.split(RegExp(r'[\\/]')).last), isNotNull);
 
     // Wipe the database to simulate a fresh install.
     await database.db.delete('journal_entries');
@@ -84,7 +103,7 @@ void main() {
     await database.db.delete('journal_tags');
     expect(await journals.getAll(), isEmpty);
 
-    await service.restoreFile(File(path));
+    await service.restoreFile(File(result.path));
     final all = await journals.getAll();
     expect(all, hasLength(1));
     expect(all.first.title, 'Alpha');
@@ -125,7 +144,7 @@ void main() {
     final second = await service.export();
     expect(second.skippedDuplicate, isTrue);
     expect(second.path, first.path);
-    expect(storage.contentsOf(first.path.split('/').last), isNotNull);
+    expect(storage.contentsOf(first.path.split(RegExp(r'[\\/]')).last), isNotNull);
   });
 
   test('validation catches orphaned habit logs and duplicate ids', () async {

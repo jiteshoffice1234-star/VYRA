@@ -1,4 +1,4 @@
-import '../models/ai/ai_conversation.dart';
+import '../../models/ai/ai_conversation.dart';
 import 'ai_service.dart';
 
 /// Local, dependency-free fallback implementation of [AIService].

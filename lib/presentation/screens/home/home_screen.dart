@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/dashboard/dashboard_provider.dart';
-import '../../application/habits/habit_providers.dart';
-import '../../application/journal/journal_providers.dart';
-import '../../application/notes/note_providers.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/date_utils.dart';
-import '../../core/utils/text_utils.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../core/widgets/app_section_header.dart';
-import '../../core/widgets/month_calendar.dart';
-import '../../core/widgets/quote_card.dart';
-import '../../core/widgets/stat_card.dart';
-import '../../domain/models/habit.dart';
-import '../../domain/models/journal_entry.dart';
-import '../../domain/models/note.dart';
-import '../../domain/services/habit_stats.dart';
-import '../widgets/habit_check.dart';
+import '../../../application/dashboard/dashboard_provider.dart';
+import '../../../application/habits/habit_providers.dart';
+import '../../../application/journal/journal_providers.dart';
+import '../../../application/notes/note_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/text_utils.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_section_header.dart';
+import '../../../core/widgets/month_calendar.dart';
+import '../../../core/widgets/quote_card.dart';
+import '../../../core/widgets/stat_card.dart';
+import '../../../domain/models/habit.dart';
+import '../../../domain/models/journal_entry.dart';
+import '../../../domain/models/note.dart';
+import '../../../domain/services/habit_stats.dart';
+import '../../widgets/habit_check.dart';
 
 /// Home dashboard organised into four sub-tabs — Overview, Today, Activity,
 /// Insights — so the first screen stays scannable without endless scrolling.
@@ -200,7 +200,7 @@ class _HomeTabs extends StatelessWidget {
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(style.radius),
-          border: style.border ??
+          border: style.boxBorder ??
               Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         ),
         child: Row(
@@ -353,7 +353,7 @@ class _QuickAddButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(style.radius),
-            border: style.border ??
+            border: style.boxBorder ??
                 Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
           ),
           child: Column(
@@ -511,7 +511,7 @@ class _ProgressRingCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: style.hardShadow != null ? [style.hardShadow!] : null,
       ),
@@ -598,7 +598,7 @@ class _StreakCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: style.hardShadow != null ? [style.hardShadow!] : null,
       ),
@@ -673,7 +673,7 @@ class _HistoryEntryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
@@ -778,7 +778,7 @@ class _CalendarPreviewCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: style.hardShadow != null ? [style.hardShadow!] : null,
       ),
@@ -810,11 +810,11 @@ class _CalendarPreviewCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              _LegendDot(color: scheme.primary),
+              _LegendDot(scheme.primary),
               const SizedBox(width: 6),
               Text('Journal', style: Theme.of(context).textTheme.labelSmall),
               const SizedBox(width: 16),
-              _LegendDot(color: scheme.tertiary),
+              _LegendDot(scheme.tertiary),
               const SizedBox(width: 6),
               Text('Habits', style: Theme.of(context).textTheme.labelSmall),
             ],
@@ -956,7 +956,7 @@ class _TodayJournalCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(style.radius),
-          border: style.border ??
+          border: style.boxBorder ??
               Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         ),
         child: Row(
@@ -1007,7 +1007,7 @@ class _TodayJournalCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: InkWell(
@@ -1085,7 +1085,7 @@ class _TodayHabitsCard extends ConsumerWidget {
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(style.radius),
-          border: style.border ??
+          border: style.boxBorder ??
               Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         ),
         child: Row(
@@ -1107,7 +1107,7 @@ class _TodayHabitsCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
@@ -1234,7 +1234,7 @@ class _PendingCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
@@ -1322,7 +1322,7 @@ class _TodayNotesCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(style.radius),
-          border: style.border ??
+          border: style.boxBorder ??
               Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         ),
         child: Row(
@@ -1347,7 +1347,7 @@ class _TodayNotesCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
@@ -1436,7 +1436,7 @@ class _TodayQuickAddCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Row(
@@ -1628,7 +1628,7 @@ class _RecentJournalsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
@@ -1725,7 +1725,7 @@ class _RecentHabitsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
@@ -1832,7 +1832,7 @@ class _RecentNotesCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
@@ -1867,7 +1867,7 @@ class _LastUpdatedCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
@@ -1981,7 +1981,7 @@ class _InlineHint extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Row(
@@ -2109,7 +2109,7 @@ class _ProgressCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: style.hardShadow != null ? [style.hardShadow!] : null,
       ),
@@ -2203,7 +2203,7 @@ class _WeekCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: style.hardShadow != null ? [style.hardShadow!] : null,
       ),
@@ -2282,7 +2282,7 @@ class _CompletionCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(style.radius),
-        border: style.border ??
+        border: style.boxBorder ??
             Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(

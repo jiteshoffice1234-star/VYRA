@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 /// Debounces rapid value changes (e.g. search-as-you-type) so expensive
 /// filtering work only runs after the user pauses typing.
 class Debouncer {

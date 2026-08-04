@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/timeline/timeline_providers.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/mood_colors.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/date_utils.dart';
-import '../../core/utils/text_utils.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../domain/models/day_timeline.dart';
-import '../../domain/models/habit.dart';
-import '../../domain/models/journal_entry.dart';
-import '../../domain/models/mood.dart';
-import '../../domain/models/note.dart';
+import '../../../application/timeline/timeline_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/mood_colors.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/text_utils.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../domain/models/day_timeline.dart';
+import '../../../domain/models/habit.dart';
+import '../../../domain/models/journal_entry.dart';
+import '../../../domain/models/mood.dart';
+import '../../../domain/models/note.dart';
 
 /// Batch of days revealed each time the user scrolls near the end.
 const int _timelinePageSize = 30;
@@ -111,7 +111,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
     // Reveal the requested month after the new items are laid out.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scroll.hasClients) return;
-      final estAvg = days.isEmpty ? 0 : _scroll.position.maxScrollExtent / days.length;
+      final estAvg = days.isEmpty ? 0.0 : _scroll.position.maxScrollExtent / days.length;
       final offset = (index * estAvg).clamp(0.0, _scroll.position.maxScrollExtent);
       _scroll.animateTo(
         offset,
@@ -497,7 +497,7 @@ class _DateHeader extends StatelessWidget {
             ],
           ),
         ),
-        if (mood != null) Text(mood.emoji, style: const TextStyle(fontSize: 26)),
+        if (mood != null) Text(mood!.emoji, style: const TextStyle(fontSize: 26)),
       ],
     );
   }

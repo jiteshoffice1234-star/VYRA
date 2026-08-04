@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/journal/journal_providers.dart';
-import '../../core/utils/date_utils.dart';
-import '../../core/utils/debounce.dart';
-import '../../core/utils/logger.dart';
-import '../../core/utils/text_utils.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../core/widgets/app_feedback.dart';
-import '../../core/widgets/filter_pill.dart';
-import '../../core/widgets/month_calendar.dart';
-import '../../domain/models/journal_entry.dart';
+import '../../../application/journal/journal_providers.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/debounce.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/utils/text_utils.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/filter_pill.dart';
+import '../../../core/widgets/month_calendar.dart';
+import '../../../domain/models/journal_entry.dart';
 import '../../widgets/journal_card.dart';
 
 class JournalListScreen extends ConsumerStatefulWidget {

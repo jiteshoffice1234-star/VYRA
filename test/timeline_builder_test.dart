@@ -77,7 +77,7 @@ void main() {
         notes: [_note(id: 10, day: _dayB, title: 'Idea')],
         habits: [_habit()],
         countsGrouped: _counts({
-          20: {_dayA: 1, _dayB: 1},
+          20: {_dayA: 1},
         }),
       );
 
@@ -130,7 +130,7 @@ void main() {
       final timeline = TimelineBuilder.build(
         journals: [],
         notes: [],
-        habits: [_habit(type: HabitType.bad)],
+        habits: [_habit(type: HabitType.bad, name: 'No sugar')],
         countsGrouped: _counts({
           20: {_dayA: 0},
         }),

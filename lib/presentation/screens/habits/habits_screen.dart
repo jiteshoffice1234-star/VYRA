@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/categories/category_providers.dart';
-import '../../application/habits/habit_providers.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/debounce.dart';
-import '../../core/utils/logger.dart';
-import '../../core/utils/text_utils.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../core/widgets/app_feedback.dart';
-import '../../core/widgets/filter_pill.dart';
-import '../../domain/models/category.dart';
-import '../../domain/models/habit.dart';
-import '../../domain/services/habit_stats.dart';
+import '../../../application/categories/category_providers.dart';
+import '../../../application/habits/habit_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/debounce.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/utils/text_utils.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/filter_pill.dart';
+import '../../../domain/models/category.dart';
+import '../../../domain/models/habit.dart';
+import '../../../domain/services/habit_stats.dart';
 import '../../widgets/habit_check.dart';
 
 class HabitsScreen extends ConsumerStatefulWidget {
@@ -212,7 +212,7 @@ class _HabitCard extends ConsumerWidget {
 
   final Habit habit;
 
-  Future<void> _toggleToday(WidgetRef ref) async {
+  Future<void> _toggleToday(BuildContext context, WidgetRef ref) async {
     try {
       await ref.read(habitsProvider.notifier).toggleToday(habit);
     } catch (e, st) {
@@ -228,7 +228,7 @@ class _HabitCard extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final style = VyraStyle.of(context);
     final color = Color(habit.color);
-    final counts = ref.watch(habitCountsProvider(habit.id));
+    final counts = ref.watch(habitCountsProvider(habit.id ?? -1));
     final streak = HabitStats.currentStreak(habit, counts);
 
     return Card(
@@ -294,7 +294,7 @@ class _HabitCard extends ConsumerWidget {
                   else
                     HabitCheck(
                       habit: habit,
-                      onChanged: () => _toggleToday(ref),
+                      onChanged: () => _toggleToday(context, ref),
                     ),
                 ],
               ),

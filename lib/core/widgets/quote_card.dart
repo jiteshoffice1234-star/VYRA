@@ -28,7 +28,7 @@ class QuoteCard extends StatelessWidget {
                 ],
               )
             : null,
-        border: style.border,
+        border: style.boxBorder,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

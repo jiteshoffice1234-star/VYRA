@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/analytics/analytics_providers.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/mood_colors.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/date_utils.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../core/widgets/app_section_header.dart';
-import '../../core/widgets/stat_card.dart';
-import '../../domain/services/analytics_service.dart';
+import '../../../application/analytics/analytics_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/mood_colors.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_section_header.dart';
+import '../../../core/widgets/stat_card.dart';
+import '../../../domain/services/analytics_service.dart';
 
 /// Analytics: habit completion, mood trends, journal frequency, streaks,
 /// best day / month, categories and recent activity — all from local data.

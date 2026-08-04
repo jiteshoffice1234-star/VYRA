@@ -33,7 +33,7 @@ class TagChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(style.radius),
-          border: style.border ??
+          border: style.boxBorder ??
               Border.all(
                 color: selected ? scheme.primary : scheme.outlineVariant.withValues(alpha: 0.4),
               ),

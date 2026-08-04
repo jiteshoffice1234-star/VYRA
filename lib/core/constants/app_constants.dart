@@ -106,5 +106,9 @@ const List<Quote> kQuotes = [
 ];
 
 /// Returns the quote for today, stable within a day.
-Quote quoteOfTheDay() =>
-    kQuotes[DateTime.now().dayOfYear % kQuotes.length];
+Quote quoteOfTheDay() {
+  final now = DateTime.now();
+  final startOfYear = DateTime(now.year, 1, 1);
+  final dayOfYear = now.difference(startOfYear).inDays + 1;
+  return kQuotes[dayOfYear % kQuotes.length];
+}

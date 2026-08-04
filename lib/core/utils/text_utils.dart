@@ -13,6 +13,14 @@ class TextUtil {
     return '${t.substring(0, maxChars).trimRight()}…';
   }
 
-  static String plural(int n, String word) =>
-      n == 1 ? '$n $word' : '$n ${word}s';
+  static String plural(int n, String word) {
+    if (n == 1) return '$n $word';
+    // Consonant + y → ies (entry → entries), vowel + y → ys (day → days).
+    if (word.length > 1 &&
+        word.endsWith('y') &&
+        !'aeiou'.contains(word[word.length - 2])) {
+      return '$n ${word.substring(0, word.length - 1)}ies';
+    }
+    return '$n ${word}s';
+  }
 }

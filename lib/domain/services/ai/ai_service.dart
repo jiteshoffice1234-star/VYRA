@@ -1,4 +1,4 @@
-import '../models/ai/ai_conversation.dart';
+import '../../models/ai/ai_conversation.dart';
 
 /// Parameters for a single AI completion.
 ///

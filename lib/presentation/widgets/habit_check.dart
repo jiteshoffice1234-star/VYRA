@@ -21,7 +21,7 @@ class HabitCheck extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final counts = ref.watch(habitCountsProvider(habit.id));
+    final counts = ref.watch(habitCountsProvider(habit.id ?? -1));
     final done = HabitStats.isDoneOn(habit, counts, DateTime.now());
     final color = Color(habit.color);
 

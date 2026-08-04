@@ -139,7 +139,7 @@ class _SheetAction extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+              Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
             ],
           ),
         ),

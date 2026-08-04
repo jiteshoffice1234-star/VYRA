@@ -5,23 +5,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import '../../application/providers/app_providers.dart';
-import '../../application/settings/app_settings.dart';
-import '../../application/settings/theme_provider.dart';
-import '../../application/categories/category_providers.dart';
-import '../../application/habits/habit_providers.dart';
-import '../../application/journal/journal_providers.dart';
-import '../../application/notes/note_providers.dart';
-import '../../application/tags/tag_providers.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/app_theme_style.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/date_utils.dart';
-import '../../core/utils/logger.dart';
-import '../../core/widgets/app_feedback.dart';
-import '../../core/widgets/color_dot.dart';
-import '../../core/widgets/confirm_dialog.dart';
-import '../../data/services/backup_service.dart';
+import '../../../application/providers/app_providers.dart';
+import '../../../application/settings/app_settings.dart';
+import '../../../application/settings/theme_provider.dart';
+import '../../../application/categories/category_providers.dart';
+import '../../../application/habits/habit_providers.dart';
+import '../../../application/journal/journal_providers.dart';
+import '../../../application/notes/note_providers.dart';
+import '../../../application/tags/tag_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/app_theme_style.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/color_dot.dart';
+import '../../../core/widgets/confirm_dialog.dart';
+import '../../../data/services/backup_service.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -29,7 +29,8 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final settings = ref.watch(themeProvider).valueOrNull ?? const AppSettings();
+    final settings =
+        ref.watch(themeProvider).valueOrNull ?? const AppSettings();
 
     return SafeArea(
       child: ListView(
@@ -43,7 +44,7 @@ class SettingsScreen extends ConsumerWidget {
                 ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 20),
-          _SectionLabel('Appearance'),
+          _SectionLabel(title: 'Appearance'),
           const SizedBox(height: 10),
           Card(
             child: Padding(
@@ -124,8 +125,9 @@ class SettingsScreen extends ConsumerWidget {
                           child: _StyleCard(
                             style: style,
                             selected: settings.themeStyle == style,
-                            onTap: () =>
-                                ref.read(themeProvider.notifier).setThemeStyle(style),
+                            onTap: () => ref
+                                .read(themeProvider.notifier)
+                                .setThemeStyle(style),
                           ),
                         ),
                     ],
@@ -135,7 +137,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          _SectionLabel('Data & Privacy'),
+          _SectionLabel(title: 'Data & Privacy'),
           const SizedBox(height: 10),
           Card(
             child: Column(
@@ -143,7 +145,8 @@ class SettingsScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.ios_share),
                   title: const Text('Export data'),
-                  subtitle: const Text('Save everything to a JSON file on this device'),
+                  subtitle: const Text(
+                      'Save everything to a JSON file on this device'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _exportData(context, ref),
                 ),
@@ -167,7 +170,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          _SectionLabel('About'),
+          _SectionLabel(title: 'About'),
           const SizedBox(height: 10),
           Card(
             child: Column(
@@ -332,7 +335,8 @@ class SettingsScreen extends ConsumerWidget {
                     } catch (e, st) {
                       AppLogger.error('Failed to create backup', e, st);
                       if (context.mounted) {
-                        showAppSnackBar(context, 'Could not create the backup.');
+                        showAppSnackBar(
+                            context, 'Could not create the backup.');
                       }
                     }
                   },
@@ -340,74 +344,73 @@ class SettingsScreen extends ConsumerWidget {
                   label: const Text('Create new backup'),
                 ),
               ),
-                const SizedBox(height: 16),
-                if (backups.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Text(
-                      'No backups yet. Create one to get started.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                  )
-                else ...[
-                  Text(
-                    'Restore from backup',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge
-                        ?.copyWith(fontWeight: FontWeight.w700),
+              const SizedBox(height: 16),
+              if (backups.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    'No backups yet. Create one to get started.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
-                  const SizedBox(height: 8),
-                  Flexible(
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: backups.length,
-                      separatorBuilder: (context, index) =>
-                          const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final info = backups[index];
-                        return ListTile(
-                          dense: true,
-                          leading: info.valid
-                              ? const Icon(Icons.description_outlined)
-                              : Icon(
-                                  Icons.error_outline,
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                          title: Text(
-                            info.fileName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            info.valid
-                                ? '${info.rowCount} rows'
-                                    '${info.exportedAt != null ? ' · ${AppDate.formatMedium(info.exportedAt!)}' : ''}'
-                                : (info.error ?? 'Unreadable backup'),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: IconButton(
-                            tooltip: 'Delete backup',
-                            icon: const Icon(Icons.delete_outline),
-                            onPressed: () =>
-                                _deleteBackup(context, service, info),
-                          ),
-                          onTap: () => _confirmRestore(
-                            context,
-                            ref,
-                            service,
-                            File(info.path),
-                          ),
-                        );
-                      },
-                    ),
+                )
+              else ...[
+                Text(
+                  'Restore from backup',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelLarge
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: backups.length,
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final info = backups[index];
+                      return ListTile(
+                        dense: true,
+                        leading: info.valid
+                            ? const Icon(Icons.description_outlined)
+                            : Icon(
+                                Icons.error_outline,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                        title: Text(
+                          info.fileName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(
+                          info.valid
+                              ? '${info.rowCount} rows'
+                                  '${info.exportedAt != null ? ' · ${AppDate.formatMedium(info.exportedAt!)}' : ''}'
+                              : (info.error ?? 'Unreadable backup'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: IconButton(
+                          tooltip: 'Delete backup',
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () =>
+                              _deleteBackup(context, service, info),
+                        ),
+                        onTap: () => _confirmRestore(
+                          context,
+                          ref,
+                          service,
+                          File(info.path),
+                        ),
+                      );
+                    },
                   ),
-                ],
+                ),
               ],
-            ),
+            ],
           ),
         ),
       ),
@@ -795,4 +798,3 @@ class _SectionLabel extends StatelessWidget {
     );
   }
 }
-

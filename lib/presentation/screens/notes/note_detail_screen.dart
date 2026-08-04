@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/notes/note_providers.dart';
-import '../../core/utils/date_utils.dart';
-import '../../core/utils/list_utils.dart';
-import '../../core/utils/logger.dart';
-import '../../core/widgets/app_empty_state.dart';
-import '../../core/widgets/app_feedback.dart';
-import '../../core/widgets/confirm_dialog.dart';
-import '../../core/widgets/tag_chip.dart';
-import '../../domain/models/note.dart';
+import '../../../application/notes/note_providers.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/list_utils.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/confirm_dialog.dart';
+import '../../../core/widgets/tag_chip.dart';
+import '../../../domain/models/note.dart';
 
 class NoteDetailScreen extends ConsumerWidget {
   const NoteDetailScreen({super.key, required this.id});

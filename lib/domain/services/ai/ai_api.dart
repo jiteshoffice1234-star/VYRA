@@ -1,5 +1,5 @@
-import '../models/ai/ai_conversation.dart';
-import '../models/ai/ai_usage_record.dart';
+import '../../models/ai/ai_conversation.dart';
+import '../../models/ai/ai_usage_record.dart';
 import 'ai_service.dart';
 import 'prompt_manager.dart';
 

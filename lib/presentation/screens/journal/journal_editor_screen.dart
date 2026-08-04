@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/journal/journal_providers.dart';
-import '../../application/providers/app_providers.dart';
-import '../../application/tags/tag_providers.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/date_utils.dart';
-import '../../core/utils/list_utils.dart';
-import '../../core/utils/logger.dart';
-import '../../core/utils/text_utils.dart';
-import '../../core/widgets/app_feedback.dart';
-import '../../core/widgets/mood_selector.dart';
-import '../../core/widgets/tag_chip.dart';
-import '../../domain/models/journal_entry.dart';
-import '../../domain/models/mood.dart';
+import '../../../application/journal/journal_providers.dart';
+import '../../../application/providers/app_providers.dart';
+import '../../../application/tags/tag_providers.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/list_utils.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/utils/text_utils.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/mood_selector.dart';
+import '../../../core/widgets/tag_chip.dart';
+import '../../../domain/models/journal_entry.dart';
+import '../../../domain/models/mood.dart';
 
 class JournalEditorScreen extends ConsumerStatefulWidget {
   const JournalEditorScreen({super.key, this.id});
@@ -65,14 +65,15 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
       context.pop();
       return;
     }
+    final loaded = entry;
     setState(() {
-      _titleController.text = entry.title;
-      _contentController.text = entry.content;
-      _mood = entry.mood;
-      _entryDate = entry.entryDate;
-      _isFavorite = entry.isFavorite;
-      _originalCreatedAt = entry.createdAt;
-      _tags = [...entry.tags];
+      _titleController.text = loaded.title;
+      _contentController.text = loaded.content;
+      _mood = loaded.mood;
+      _entryDate = loaded.entryDate;
+      _isFavorite = loaded.isFavorite;
+      _originalCreatedAt = loaded.createdAt;
+      _tags = [...loaded.tags];
     });
   }
 

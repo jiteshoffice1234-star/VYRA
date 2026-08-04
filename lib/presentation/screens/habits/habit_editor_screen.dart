@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../application/categories/category_providers.dart';
-import '../../application/habits/habit_providers.dart';
-import '../../application/providers/app_providers.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/vyra_style.dart';
-import '../../core/utils/list_utils.dart';
-import '../../core/utils/logger.dart';
-import '../../core/widgets/app_feedback.dart';
-import '../../core/widgets/category_dialog.dart';
-import '../../core/widgets/color_dot.dart';
-import '../../domain/models/category.dart';
-import '../../domain/models/habit.dart';
+import '../../../application/categories/category_providers.dart';
+import '../../../application/habits/habit_providers.dart';
+import '../../../application/providers/app_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/vyra_style.dart';
+import '../../../core/utils/list_utils.dart';
+import '../../../core/utils/logger.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/category_dialog.dart';
+import '../../../core/widgets/color_dot.dart';
+import '../../../domain/models/category.dart';
+import '../../../domain/models/habit.dart';
 
 class HabitEditorScreen extends ConsumerStatefulWidget {
   const HabitEditorScreen({super.key, this.id});
@@ -65,20 +65,21 @@ class _HabitEditorScreenState extends ConsumerState<HabitEditorScreen> {
       context.pop();
       return;
     }
+    final loaded = habit;
     setState(() {
-      _nameController.text = habit.name;
-      _descriptionController.text = habit.description;
-      _type = habit.type;
+      _nameController.text = loaded.name;
+      _descriptionController.text = loaded.description;
+      _type = loaded.type;
       _colorIndex = AppConstants.habitColors
-          .indexOf(Color(habit.color))
+          .indexOf(Color(loaded.color))
           .clamp(0, AppConstants.habitColors.length - 1)
           .toInt();
-      _iconIndex = habit.iconIndex;
-      _categoryId = habit.categoryId;
-      _target = habit.targetPerDay;
-      _reminderEnabled = habit.reminderEnabled;
-      _reminderTime = habit.reminderTime;
-      _originalCreatedAt = habit.createdAt;
+      _iconIndex = loaded.iconIndex;
+      _categoryId = loaded.categoryId;
+      _target = loaded.targetPerDay;
+      _reminderEnabled = loaded.reminderEnabled;
+      _reminderTime = loaded.reminderTime;
+      _originalCreatedAt = loaded.createdAt;
     });
   }
 
@@ -280,7 +281,7 @@ class _HabitEditorScreenState extends ConsumerState<HabitEditorScreen> {
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerHigh.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(VyraStyle.of(context).radius),
-                    border: VyraStyle.of(context).border ??
+                    border: VyraStyle.of(context).boxBorder ??
                         Border.all(
                           color: scheme.outlineVariant.withValues(alpha: 0.4),
                         ),

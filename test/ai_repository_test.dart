@@ -131,7 +131,13 @@ void main() {
     );
     await repo.addMessage(id, _message(AiRole.user, 'x'));
     await repo.recordUsage(
-      AiUsageRecord(serviceId: 'offline', createdAt: now),
+      AiUsageRecord(
+        serviceId: 'offline',
+        promptTokens: 0,
+        completionTokens: 0,
+        latencyMs: 0,
+        createdAt: now,
+      ),
     );
 
     await repo.clearHistory();

@@ -19,8 +19,8 @@ void main() {
       final ranges = highlightRanges('cat and catalog cat', 'cat');
       expect(ranges, hasLength(3));
       expect(ranges[0].start, 0);
-      expect(ranges[1].start, 9);
-      expect(ranges[2].start, 17);
+      expect(ranges[1].start, 8);
+      expect(ranges[2].start, 16);
     });
 
     test('no match yields no ranges', () {

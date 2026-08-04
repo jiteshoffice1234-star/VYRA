@@ -181,8 +181,12 @@ class AnalyticsService {
     final journalFrequency = <JournalFrequency>[
       for (final e in freqMap.entries)
         JournalFrequency(
-          month: DateTime.parse(
-            '${e.key.split('-')[0]}-${e.key.split('-')[1]}-01',
+          // Parse the two parts numerically — `DateTime.parse` requires
+          // zero-padded months (e.g. '2026-8-01') which would throw.
+          month: DateTime(
+            int.parse(e.key.split('-')[0]),
+            int.parse(e.key.split('-')[1]),
+            1,
           ),
           count: e.value,
         ),
