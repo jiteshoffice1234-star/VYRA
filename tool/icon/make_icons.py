@@ -22,10 +22,11 @@ left = (w - side) // 2
 top = (h - side) // 2
 square = im.crop((left, top, left + side, top + side))
 
-# Launcher icons are masked (circle / squircle), so keep the logo inside a
-# ~76% safe zone: 12% padding on each side.
+# Launcher icons are masked (circle / squircle), so keep the logo inside the
+# adaptive-icon safe zone: Android only guarantees the inner 66% is visible,
+# so 70% (15% padding each side) is a safe compromise.
 for folder, size in DENSITIES.items():
-    target = int(size * 0.76)
+    target = int(size * 0.70)
     resized = square.resize((target, target), Image.LANCZOS)
     canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     offset = (size - target) // 2
