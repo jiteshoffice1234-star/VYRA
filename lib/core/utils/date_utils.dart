@@ -9,6 +9,7 @@ class AppDate {
   static final DateFormat _shortFormat = DateFormat('MMM d');
   static final DateFormat _monthYearFormat = DateFormat('MMMM yyyy');
   static final DateFormat _weekdayLetterFormat = DateFormat('E');
+  static final DateFormat _weekdayFullFormat = DateFormat('EEEE');
   static final DateFormat _timeFormat = DateFormat('h:mm a');
 
   /// `yyyy-MM-dd` key for a day.
@@ -79,6 +80,9 @@ class AppDate {
     final label = _weekdayLetterFormat.format(d);
     return label.length >= 2 ? label.substring(0, 2) : label;
   }
+
+  /// Full weekday name, e.g. "Tuesday".
+  static String weekdayName(DateTime d) => _weekdayFullFormat.format(d);
 
   /// Time-of-day greeting.
   static String greeting(DateTime now) {

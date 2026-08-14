@@ -61,6 +61,11 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
   /// race (both reading the same counts and writing stale values).
   final Set<int> _busyIds = {};
 
+  /// "habitId:dayKey" pairs with an in-flight past-day toggle, so rapid taps
+  /// on *different* days stay independent while a same-day double-tap can't
+  /// both read the stale state and write the same value.
+  final Set<String> _busyDayKeys = {};
+
   @override
   Future<List<Habit>> build() async {
     final repo = await ref.watch(habitRepositoryProvider.future);
@@ -75,22 +80,67 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
     if (id == null) return;
     final repo = await ref.read(habitRepositoryProvider.future);
     await repo.setArchived(id, archived);
+    // Archived habits must not keep nagging; restoring brings the reminder
+    // back if it was enabled.
+    if (archived) {
+      await _cancelReminder(id);
+    } else if (habit.reminderEnabled && habit.reminderTime != null) {
+      await _scheduleReminder(habit, id);
+    }
     _afterChange();
+  }
+
+  /// Enables/disables the daily reminder to match the saved habit state.
+  Future<void> _syncReminder(Habit habit, int id) async {
+    if (habit.reminderEnabled && habit.reminderTime != null) {
+      await _scheduleReminder(habit, id);
+    } else {
+      await _cancelReminder(id);
+    }
+  }
+
+  Future<void> _scheduleReminder(Habit habit, int id) async {
+    final scheduler = ref.read(reminderSchedulerProvider);
+    await scheduler.scheduleDaily(
+      habitId: id,
+      habitName: habit.name,
+      time: habit.reminderTime!,
+    );
+  }
+
+  Future<void> _cancelReminder(int id) async {
+    final scheduler = ref.read(reminderSchedulerProvider);
+    await scheduler.cancel(id);
+  }
+
+  /// Re-schedules every reminder to match the stored database. Used after a
+  /// backup restore, which writes tables directly and bypasses [save].
+  Future<void> resyncReminders() async {
+    final repo = await ref.read(habitRepositoryProvider.future);
+    final habits = await repo.getAll(includeArchived: true);
+    final scheduler = ref.read(reminderSchedulerProvider);
+    await scheduler.resyncAll(habits);
   }
 
   Future<void> save(Habit habit) async {
     final repo = await ref.read(habitRepositoryProvider.future);
+    int id;
     if (habit.id == null) {
-      await repo.insert(habit);
+      id = await repo.insert(habit);
     } else {
       await repo.update(habit);
+      id = habit.id!;
     }
+    // Keep the reminder in sync with what was just saved (new habits get
+    // their freshly-inserted id; failures are logged, never propagated).
+    await _syncReminder(habit, id);
     ref.invalidateSelf();
   }
 
   Future<void> delete(int id) async {
     final repo = await ref.read(habitRepositoryProvider.future);
     await repo.delete(id);
+    await _cancelReminder(id);
     ref.invalidateSelf();
   }
 
@@ -102,13 +152,30 @@ class HabitsNotifier extends AsyncNotifier<List<Habit>> {
       final repo = await ref.read(habitRepositoryProvider.future);
       final now = DateTime.now();
       final counts = await repo.countsForHabit(id);
-      final done = HabitStats.isDoneOn(habit, counts, now);
-      final next = habit.type == HabitType.good
-          ? (done ? 0 : habit.targetPerDay)
-          : (done ? 1 : 0);
-      await repo.setCount(id, now, next);
+      await repo.setCount(id, now, HabitStats.toggleCount(habit, counts, now));
     } finally {
       _busyIds.remove(id);
+      _afterChange();
+    }
+  }
+
+  /// Logs or undoes [day] (typically a past day, from the history calendar)
+  /// using the same setCount/countsGrouped pipeline as [toggleToday]. Days in
+  /// the future are rejected so history can never be pre-filled.
+  Future<void> toggleDay(Habit habit, DateTime day) async {
+    final id = habit.id;
+    if (id == null) return;
+    // Normalize so a timestamped "today" still passes; only strictly future
+    // calendar days are rejected.
+    if (AppDate.startOfDay(day).isAfter(AppDate.today())) return;
+    final key = '$id:${AppDate.dayKey(day)}';
+    if (!_busyDayKeys.add(key)) return;
+    try {
+      final repo = await ref.read(habitRepositoryProvider.future);
+      final counts = await repo.countsForHabit(id);
+      await repo.setCount(id, day, HabitStats.toggleCount(habit, counts, day));
+    } finally {
+      _busyDayKeys.remove(key);
       _afterChange();
     }
   }

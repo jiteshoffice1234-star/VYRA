@@ -13,6 +13,7 @@ class MonthCalendar extends StatefulWidget {
     this.onSelectDay,
     this.onMonthChanged,
     this.navigable = true,
+    this.isDayEnabled,
   });
 
   final DateTime month;
@@ -22,6 +23,11 @@ class MonthCalendar extends StatefulWidget {
   final ValueChanged<DateTime>? onSelectDay;
   final ValueChanged<DateTime>? onMonthChanged;
   final bool navigable;
+
+  /// Optional per-day gate for tap targets (e.g. never allow future days).
+  /// When it returns false the cell is dimmed and not tappable. Null means
+  /// every day is tappable (previous behaviour).
+  final bool Function(DateTime day)? isDayEnabled;
 
   @override
   State<MonthCalendar> createState() => _MonthCalendarState();
@@ -126,12 +132,15 @@ class _MonthCalendarState extends State<MonthCalendar> {
     final dayKey = AppDate.dayKey(day);
     final isSelected = widget.selectedDay != null && AppDate.isSameDay(day, widget.selectedDay!);
     final isToday = AppDate.isToday(day);
+    final enabled = widget.isDayEnabled?.call(day) ?? true;
     final hasPrimary = widget.primaryDays.contains(dayKey);
     final hasSecondary = widget.secondaryDays.contains(dayKey);
 
     return Expanded(
       child: GestureDetector(
-        onTap: widget.onSelectDay == null ? null : () => widget.onSelectDay!(day),
+        onTap: enabled && widget.onSelectDay != null
+            ? () => widget.onSelectDay!(day)
+            : null,
         child: Container(
           height: 44,
           margin: const EdgeInsets.all(2),
@@ -148,8 +157,14 @@ class _MonthCalendarState extends State<MonthCalendar> {
               Text(
                 '$dayNumber',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: isSelected ? scheme.onPrimary : scheme.onSurface,
-                      fontWeight: isToday || isSelected ? FontWeight.w800 : FontWeight.w500,
+                      color: isSelected
+                          ? scheme.onPrimary
+                          : enabled
+                              ? scheme.onSurface
+                              : scheme.outlineVariant,
+                      fontWeight: isToday || isSelected
+                          ? FontWeight.w800
+                          : FontWeight.w500,
                     ),
               ),
               const SizedBox(height: 1),

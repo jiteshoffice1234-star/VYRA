@@ -1,13 +1,12 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
 import 'core/utils/logger.dart';
+import 'data/services/reminder_service.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Route all uncaught framework errors through the logger. In debug builds
@@ -26,6 +25,18 @@ void main() {
     AppLogger.error('Unhandled platform error', error, stack);
     return true;
   };
+
+  // Habit reminders: initialize once and route notification taps to the
+  // habit's detail screen (handled by VyraApp once the router is attached).
+  final reminders = appReminderScheduler;
+  await reminders.initialize(onTap: (payload) {
+    final id = int.tryParse(payload);
+    if (id != null) pendingReminderRoute.value = '/habit/detail/$id';
+  });
+  // Cold start: the app was launched by tapping a reminder notification.
+  final launchPayload = await reminders.launchPayload();
+  final launchId = int.tryParse(launchPayload ?? '');
+  if (launchId != null) pendingReminderRoute.value = '/habit/detail/$launchId';
 
   runApp(const ProviderScope(child: VyraApp()));
 }

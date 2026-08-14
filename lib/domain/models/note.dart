@@ -1,4 +1,3 @@
-import '../../core/utils/date_utils.dart';
 import 'checklist_item.dart';
 
 /// How a note renders: plain text or a checklist.

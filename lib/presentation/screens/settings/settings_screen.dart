@@ -433,6 +433,9 @@ class SettingsScreen extends ConsumerWidget {
     if (!ok || !context.mounted) return;
     try {
       await service.restoreFile(file);
+      // Restore writes the database directly, so reminders are re-scheduled
+      // from the restored rows (best-effort; never fails the restore).
+      await ref.read(habitsProvider.notifier).resyncReminders();
       _refreshAll(ref);
       if (context.mounted) {
         // Close the sheet first so the restored data is visible underneath.
@@ -465,18 +468,22 @@ class SettingsScreen extends ConsumerWidget {
       }
       return;
     }
-    final files = dir
-        .listSync()
-        .whereType<File>()
-        .where((f) => p.extension(f.path).toLowerCase() == '.json')
-        .toList()
-      ..sort((a, b) => b.path.compareTo(a.path));
+    // Async streaming listing so the import flow never blocks the UI thread.
+    final files = <File>[];
+    await for (final entity in dir.list()) {
+      if (entity is File &&
+          p.extension(entity.path).toLowerCase() == '.json') {
+        files.add(entity);
+      }
+    }
+    files.sort((a, b) => b.path.compareTo(a.path));
     if (files.isEmpty) {
       if (context.mounted) {
         showAppSnackBar(context, 'No backups found on this device.');
       }
       return;
     }
+    if (!context.mounted) return;
     final picked = await showModalBottomSheet<File>(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,

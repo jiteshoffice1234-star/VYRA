@@ -2,17 +2,19 @@
 
 A modern, offline-first personal productivity app that combines a **Daily Journal**, a **Habit Tracker** and **Notes** in one beautiful, minimal package.
 
-> **Version 1 (MVP).** Everything runs 100% locally — no login, no cloud, no APIs. The architecture is deliberately structured so AI features (journal summaries, habit insights, weekly reviews, voice journal, OCR, cloud sync…) can be plugged in later without rewriting the app.
+> **Version 1 (MVP).** Everything runs 100% locally — no login, no cloud, no APIs. The architecture is deliberately structured so AI features (journal summaries, habit insights, voice journal, OCR, cloud sync…) can be plugged in later without rewriting the app.
 
 ---
 
 ## Features
 
 - **Home dashboard** — greeting, today's habit progress, quick-add buttons, recent journal & notes, quote of the day, calendar preview, statistics cards and weekly progress chart.
+- **This Week review** — weekly completion, best day, mood trend and streak changes with a generated recap (from the Insights tab).
 - **Journal** — create / edit / delete / view, mood selection, tags, title + content, word & character counts, search, favorite, filter by date, calendar view.
-- **Habit tracker** — good & bad habits, daily streaks, longest streak, weekly & monthly views, calendar history, completion percentage, color labels, categories, reminder *placeholder*.
+- **Habit tracker** — good & bad habits, daily streaks, longest streak, weekly & monthly views, calendar history, completion percentage, color labels, categories, daily reminders (tap the notification to open the habit).
 - **Notes** — create / edit / delete, pin, favorite, search, tags, checklist notes, categories, color notes.
-- **Settings** — light / dark / system theme, 6 accent colors, export / backup / privacy placeholders, about + version.
+- **Settings** — light / dark / system theme, 6 accent colors, 3 theme styles, JSON export, backup & restore (create, list, validate, import, delete), privacy statement, about + version.
+- **Backup & restore** — full local backup to a JSON file: automatic duplicate detection, validation of restored files, restore with confirmation, and import from an existing backup file.
 
 ---
 
@@ -26,6 +28,7 @@ A modern, offline-first personal productivity app that combines a **Daily Journa
 | Database        | SQLite via `sqflite` (+ `sqflite_common_ffi` on desktop) |
 | Settings        | `shared_preferences`                     |
 | Locale/format   | `intl`                                   |
+| Reminders       | `flutter_local_notifications` + `timezone` |
 
 The database runs on Android / iOS and also on Windows / macOS / Linux desktop for local testing.
 
@@ -113,16 +116,25 @@ Dates are stored as `yyyy-MM-dd` for simple day-based queries (streaks, calendar
 
 ---
 
-## Future-Ready (not implemented in v1)
+## Roadmap
 
-The structure anticipates, without implementing:
+### Shipped in v1
 
-- **AI modules** — chat, journal summary, habit insights, weekly review (add providers + screens, they already fit the router shell).
-- **Voice journal / OCR / image analysis** — plug into the journal editor as a new input path.
+- **Backup & restore** — full JSON export / import with validation, duplicate detection and delete; restore replaces the local database after confirmation.
+- **Habit reminders** — daily local notifications scheduled from the habit editor; rescheduled on edit, cancelled on delete/archive, re-scheduled after a backup restore, and tapping a notification opens the habit's detail screen.
+- **This Week review** — a rule-based weekly recap of completion, best day, moods and streaks (see Features).
+- **Analytics** — habit completion, mood trends, journal frequency, best day / month, categories and recent activity.
+- **Search** — highlighted results across journals, habits and notes with recent-search history.
+
+### Planned
+
+The structure anticipates these without implementing them:
+
+- **AI companion** — journal summaries, habit insights and richer weekly reviews. An `ai_service` interface with an offline fallback already exists; a small on-device model would keep the app 100% offline, or an optional cloud API can plug into the same interface.
+- **Voice journal / OCR / image analysis** — new input paths into the journal editor.
 - **Cloud sync & authentication** — only the `data/repositories` layer needs to change.
 - **NVIDIA NIM API integration** — a dedicated `data/remote/` datasource behind the same repositories.
-- **Notifications & reminders** — habit rows already persist `reminder_time` / `reminder_enabled`; wire a local-notifications service later.
-- **Home-screen widgets, wearables, analytics** — the dashboard provider is the single source of stats.
+- **Home-screen widgets & wearables** — the dashboard provider is the single source of stats.
 
 ---
 

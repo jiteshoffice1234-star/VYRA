@@ -108,7 +108,10 @@ const List<Quote> kQuotes = [
 /// Returns the quote for today, stable within a day.
 Quote quoteOfTheDay() {
   final now = DateTime.now();
-  final startOfYear = DateTime(now.year, 1, 1);
-  final dayOfYear = now.difference(startOfYear).inDays + 1;
+  // Compute in UTC so DST transitions (23/25-hour days) can't shift the
+  // day-of-year by one — see AppDate.daysBetween for the same rationale.
+  final today = DateTime.utc(now.year, now.month, now.day);
+  final startOfYear = DateTime.utc(now.year, 1, 1);
+  final dayOfYear = today.difference(startOfYear).inDays + 1;
   return kQuotes[dayOfYear % kQuotes.length];
 }

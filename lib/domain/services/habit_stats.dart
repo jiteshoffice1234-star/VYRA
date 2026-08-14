@@ -139,6 +139,20 @@ class HabitStats {
     return best;
   }
 
+  /// The count to write when [day] is toggled: good habits jump to the
+  /// target (or 0 to undo), bad habits flip between 0 (avoided) and 1
+  /// (slipped). Shared by today's check button and past-day calendar logging.
+  static int toggleCount(
+    Habit habit,
+    Map<String, int> counts,
+    DateTime day,
+  ) {
+    final done = isDoneOn(habit, counts, day);
+    return habit.type == HabitType.good
+        ? (done ? 0 : habit.targetPerDay)
+        : (done ? 1 : 0);
+  }
+
   /// Days done (inclusive range, clamped to after creation) / days elapsed.
   static double completion(
     Habit habit,

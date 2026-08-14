@@ -10,6 +10,7 @@ import '../../data/repositories/search_history_repository.dart';
 import '../../data/repositories/settings_repository.dart';
 import '../../data/repositories/tag_repository.dart';
 import '../../data/services/backup_service.dart';
+import '../../data/services/reminder_service.dart';
 
 /// Opens the single app database (lazily, on first watch).
 final appDatabaseProvider = FutureProvider<AppDatabase>((ref) {
@@ -56,6 +57,14 @@ final categoryRepositoryProvider = FutureProvider<CategoryRepository>((ref) asyn
 final backupServiceProvider = FutureProvider<BackupService>((ref) async {
   final db = await ref.watch(appDatabaseProvider.future);
   return BackupService(db.db);
+});
+
+/// Schedules habit reminders. Shares the single instance initialized at
+/// startup (see [appReminderScheduler]) so scheduling works even though no
+/// platform channels exist in `flutter test` — the provider is only touched
+/// when habit save/delete actually needs it.
+final reminderSchedulerProvider = Provider<ReminderScheduler>((ref) {
+  return appReminderScheduler;
 });
 
 final searchHistoryRepositoryProvider =

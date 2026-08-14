@@ -134,6 +134,23 @@ class _HabitEditorScreenState extends ConsumerState<HabitEditorScreen> {
     showAppSnackBar(context, message);
   }
 
+  /// Android 13+ shows a system permission prompt the first time; on older
+  /// Android it is already granted. If denied, remind the user where to fix
+  /// it — the schedule itself still saves either way.
+  Future<void> _requestReminderPermission() async {
+    try {
+      final granted =
+          await ref.read(reminderSchedulerProvider).requestPermission();
+      if (!mounted || granted) return;
+      showAppSnackBar(
+        context,
+        'Notifications are blocked — enable them in system settings to get reminders.',
+      );
+    } catch (e, st) {
+      AppLogger.error('Failed to request notification permission', e, st);
+    }
+  }
+
   Future<void> _pickReminderTime() async {
     final now = DateTime.now();
     final picked = await showTimePicker(
@@ -358,13 +375,14 @@ class _HabitEditorScreenState extends ConsumerState<HabitEditorScreen> {
                 SwitchListTile(
                   value: _reminderEnabled,
                   onChanged: (v) {
-                    setState(() => _reminderEnabled = v);
-                    if (v && _reminderTime == null) {
-                      _showMessage('Reminders are a placeholder in this version.');
-                    }
+                    setState(() {
+                      _reminderEnabled = v;
+                      if (v) _reminderTime ??= _defaultTime();
+                    });
+                    if (v) _requestReminderPermission();
                   },
                   title: const Text('Enable reminder'),
-                  subtitle: const Text('Notifications coming in a future update'),
+                  subtitle: const Text('Get a daily nudge at your chosen time'),
                 ),
                 if (_reminderEnabled) ...[
                   Divider(height: 1, indent: 16, endIndent: 16),

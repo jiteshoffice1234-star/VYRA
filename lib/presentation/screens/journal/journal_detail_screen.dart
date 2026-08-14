@@ -12,7 +12,6 @@ import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_feedback.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../core/widgets/tag_chip.dart';
-import '../../../domain/models/journal_entry.dart';
 
 class JournalDetailScreen extends ConsumerWidget {
   const JournalDetailScreen({super.key, required this.id});

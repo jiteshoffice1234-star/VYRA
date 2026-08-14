@@ -810,11 +810,11 @@ class _CalendarPreviewCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              _LegendDot(scheme.primary),
+              _legendDot(scheme.primary),
               const SizedBox(width: 6),
               Text('Journal', style: Theme.of(context).textTheme.labelSmall),
               const SizedBox(width: 16),
-              _LegendDot(scheme.tertiary),
+              _legendDot(scheme.tertiary),
               const SizedBox(width: 6),
               Text('Habits', style: Theme.of(context).textTheme.labelSmall),
             ],
@@ -824,7 +824,7 @@ class _CalendarPreviewCard extends StatelessWidget {
     );
   }
 
-  Widget _LegendDot(Color color) => Container(
+  Widget _legendDot(Color color) => Container(
         width: 8,
         height: 8,
         decoration: BoxDecoration(color: color, shape: BoxShape.circle),
@@ -1257,7 +1257,6 @@ class _PendingRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scheme = Theme.of(context).colorScheme;
     final style = VyraStyle.of(context);
     final color = Color(habit.color);
 
@@ -1371,7 +1370,6 @@ class _NoteRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final style = VyraStyle.of(context);
     final color = Color(note.color);
 
     return InkWell(
@@ -1559,7 +1557,6 @@ class _ActivityTabState extends ConsumerState<_ActivityTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final data = widget.data;
     final journals = ref.watch(journalListProvider).valueOrNull ?? const [];
     final notes = ref.watch(notesProvider).valueOrNull ?? const [];
     final habits = ref.watch(habitsProvider).valueOrNull ?? const [];
@@ -1891,7 +1888,6 @@ class _UpdatedRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final style = VyraStyle.of(context);
     final isJournal = item.kind == 'journal';
     final color = isJournal ? const Color(0xFF6C5CE7) : const Color(0xFFF59E0B);
 
@@ -2035,6 +2031,8 @@ class _InsightsTabState extends ConsumerState<_InsightsTab>
         24,
       ),
       children: [
+        _WeekReviewEntry(data: data),
+        const SizedBox(height: 20),
         Row(
           children: [
             Expanded(
@@ -2091,6 +2089,70 @@ class _InsightsTabState extends ConsumerState<_InsightsTab>
         const SizedBox(height: 10),
         _CompletionCard(data: data),
       ],
+    );
+  }
+}
+
+/// Entry card for the "This Week" review screen, shown at the top of the
+/// Insights tab.
+class _WeekReviewEntry extends StatelessWidget {
+  const _WeekReviewEntry({required this.data});
+
+  final DashboardData data;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final style = VyraStyle.of(context);
+    final pct = (data.weeklyProgress * 100).round();
+    return Card(
+      child: InkWell(
+        onTap: () => context.push('/week-review'),
+        borderRadius: BorderRadius.circular(style.radius),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: scheme.primary.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(Icons.auto_awesome, color: scheme.primary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'This Week',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      data.weeklyProgress > 0
+                          ? '$pct% of habits done · your week in review'
+                          : 'Your week in review — habits, moods & streaks',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

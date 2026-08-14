@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../../application/analytics/analytics_providers.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/mood_colors.dart';
-import '../../../core/theme/vyra_style.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_section_header.dart';

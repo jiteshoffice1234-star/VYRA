@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../application/habits/habit_providers.dart';
+import '../../../application/providers/app_providers.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/list_utils.dart';
@@ -29,6 +30,10 @@ class HabitDetailScreen extends ConsumerStatefulWidget {
 
 class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
   DateTime _month = DateTime.now();
+
+  /// True while a reminder toggle / time change is being saved, so rapid
+  /// double-taps can't race two saves.
+  bool _reminderBusy = false;
 
   @override
   Widget build(BuildContext context) {
@@ -266,6 +271,17 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
           ),
           const SizedBox(height: 20),
 
+          // Reminder: quick enable/disable + scheduled time.
+          AppSectionHeader(title: 'Reminder'),
+          const SizedBox(height: 12),
+          _ReminderCard(
+            habit: habit,
+            busy: _reminderBusy,
+            onToggle: _toggleReminder,
+            onPickTime: _pickReminderTime,
+          ),
+          const SizedBox(height: 20),
+
           // Weekly view
           AppSectionHeader(title: 'This week'),
           const SizedBox(height: 12),
@@ -288,22 +304,147 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Monthly calendar history
+          // Monthly calendar history — tappable to log past days.
           AppSectionHeader(title: 'History'),
           const SizedBox(height: 12),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
-              child: MonthCalendar(
-                month: _month,
-                secondaryDays: monthDoneDays,
-                onMonthChanged: (m) => setState(() => _month = m),
+              child: Column(
+                children: [
+                  MonthCalendar(
+                    month: _month,
+                    secondaryDays: monthDoneDays,
+                    onMonthChanged: (m) => setState(() => _month = m),
+                    onSelectDay: _toggleDay,
+                    isDayEnabled: (d) => !d.isAfter(DateTime.now()),
+                  ),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Tap a day to log or undo it',
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelSmall
+                          ?.copyWith(color: scheme.onSurfaceVariant),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// Logs or undoes a past day from the history calendar. Reuses the
+  /// notifier's setCount pipeline; future days are rejected by the calendar.
+  Future<void> _toggleDay(DateTime day) async {
+    final habit = (ref.read(habitsProvider).valueOrNull ?? const <Habit>[])
+        .firstWhereOrNull((h) => h.id == widget.id);
+    if (habit == null) return;
+    try {
+      await ref.read(habitsProvider.notifier).toggleDay(habit, day);
+    } catch (e, st) {
+      AppLogger.error('Failed to update habit history', e, st);
+      if (mounted) {
+        showAppSnackBar(context, 'Could not update that day.');
+      }
+    }
+  }
+
+  /// Enables/disables the daily reminder by saving the habit (the notifier
+  /// schedules or cancels the notification to match).
+  Future<void> _toggleReminder(bool enabled) async {
+    if (_reminderBusy) return;
+    final habit = (ref.read(habitsProvider).valueOrNull ?? const <Habit>[])
+        .firstWhereOrNull((h) => h.id == widget.id);
+    if (habit == null) return;
+    setState(() => _reminderBusy = true);
+    try {
+      final updated = habit.copyWith(
+        reminderEnabled: enabled,
+        reminderTime: enabled
+            ? (habit.reminderTime ?? _defaultReminderTime())
+            : null,
+      );
+      await ref.read(habitsProvider.notifier).save(updated);
+      if (enabled) _requestReminderPermission();
+    } catch (e, st) {
+      AppLogger.error('Failed to update habit reminder', e, st);
+      if (mounted) {
+        showAppSnackBar(context, 'Could not update the reminder.');
+      }
+    } finally {
+      if (mounted) setState(() => _reminderBusy = false);
+    }
+  }
+
+  /// Changes the scheduled reminder time via the system time picker.
+  Future<void> _pickReminderTime() async {
+    final habit = (ref.read(habitsProvider).valueOrNull ?? const <Habit>[])
+        .firstWhereOrNull((h) => h.id == widget.id);
+    if (habit == null) return;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _parseReminderTime(habit.reminderTime) ?? TimeOfDay.now(),
+    );
+    if (picked == null || !mounted) return;
+    final current = (ref.read(habitsProvider).valueOrNull ?? const <Habit>[])
+        .firstWhereOrNull((h) => h.id == widget.id);
+    if (current == null) return;
+    final time =
+        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+    setState(() => _reminderBusy = true);
+    try {
+      await ref
+          .read(habitsProvider.notifier)
+          .save(current.copyWith(reminderTime: time));
+    } catch (e, st) {
+      AppLogger.error('Failed to update reminder time', e, st);
+      if (mounted) {
+        showAppSnackBar(context, 'Could not update the reminder time.');
+      }
+    } finally {
+      if (mounted) setState(() => _reminderBusy = false);
+    }
+  }
+
+  String _defaultReminderTime() {
+    final now = DateTime.now().add(const Duration(hours: 1));
+    return '${now.hour.toString().padLeft(2, '0')}:'
+        '${now.minute.toString().padLeft(2, '0')}';
+  }
+
+  /// Parses an "HH:mm" string into a [TimeOfDay], null when malformed.
+  TimeOfDay? _parseReminderTime(String? time) {
+    if (time == null) return null;
+    final parts = time.split(':');
+    if (parts.length != 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null || h < 0 || h > 23 || m < 0 || m > 59) {
+      return null;
+    }
+    return TimeOfDay(hour: h, minute: m);
+  }
+
+  /// Android 13+ shows a system permission prompt; if denied, point the user
+  /// at system settings. The reminder is still saved either way.
+  Future<void> _requestReminderPermission() async {
+    try {
+      final granted =
+          await ref.read(reminderSchedulerProvider).requestPermission();
+      if (!mounted || granted) return;
+      showAppSnackBar(
+        context,
+        'Notifications are blocked — enable them in system settings to get reminders.',
+      );
+    } catch (e, st) {
+      AppLogger.error('Failed to request notification permission', e, st);
+    }
   }
 
   /// Archives (hides) or restores the habit. History is always preserved.
@@ -349,6 +490,66 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
       return;
     }
     if (context.mounted) context.pop();
+  }
+}
+
+/// Quick reminder enable/disable + scheduled time, mirroring the editor's
+/// reminder settings but without leaving the detail screen.
+class _ReminderCard extends StatelessWidget {
+  const _ReminderCard({
+    required this.habit,
+    required this.busy,
+    required this.onToggle,
+    required this.onPickTime,
+  });
+
+  final Habit habit;
+  final bool busy;
+  final ValueChanged<bool> onToggle;
+  final VoidCallback onPickTime;
+
+  @override
+  Widget build(BuildContext context) {
+    final time = _displayTime(habit.reminderTime);
+    return Card(
+      child: Column(
+        children: [
+          SwitchListTile(
+            value: habit.reminderEnabled,
+            onChanged: busy ? null : (v) => onToggle(v),
+            title: const Text('Enable reminder'),
+            subtitle: Text(
+              habit.reminderEnabled
+                  ? 'Get a daily nudge at your set time'
+                  : 'Get a daily nudge at your chosen time',
+            ),
+          ),
+          if (habit.reminderEnabled) ...[
+            Divider(height: 1, indent: 16, endIndent: 16),
+            ListTile(
+              leading: const Icon(Icons.alarm),
+              title: Text(
+                time == null ? 'Set time' : 'Daily at $time',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: busy ? null : onPickTime,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  static String? _displayTime(String? time) {
+    if (time == null) return null;
+    final parts = time.split(':');
+    if (parts.length != 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null || h < 0 || h > 23 || m < 0 || m > 59) {
+      return null;
+    }
+    return AppDate.formatTime(DateTime(2026, 1, 1, h, m));
   }
 }
 

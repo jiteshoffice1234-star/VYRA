@@ -5,6 +5,7 @@ import '../../core/widgets/app_empty_state.dart';
 import '../../presentation/navigation/main_shell.dart';
 import '../../presentation/screens/habits/habit_detail_screen.dart';
 import '../../presentation/screens/analytics/analytics_screen.dart';
+import '../../presentation/screens/analytics/week_review_screen.dart';
 import '../../presentation/screens/habits/habit_editor_screen.dart';
 import '../../presentation/screens/habits/habits_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
@@ -68,6 +69,12 @@ final appRouter = GoRouter(
       parentNavigatorKey: rootNavigatorKey,
       pageBuilder: (context, state) =>
           _fadeSlidePage(state, const AnalyticsScreen()),
+    ),
+    GoRoute(
+      path: '/week-review',
+      parentNavigatorKey: rootNavigatorKey,
+      pageBuilder: (context, state) =>
+          _fadeSlidePage(state, const WeekReviewScreen()),
     ),
     GoRoute(
       path: '/journal/editor',

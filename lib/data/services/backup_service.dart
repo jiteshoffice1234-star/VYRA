@@ -109,11 +109,15 @@ class LocalBackupStorage implements BackupStorage {
   Future<List<File>> list() async {
     final dir = await directory();
     if (!await dir.exists()) return const [];
-    final files = dir
-        .listSync()
-        .whereType<File>()
-        .where((f) => p.extension(f.path).toLowerCase() == '.json')
-        .toList();
+    // Async streaming listing: never blocks the UI thread, even with many
+    // backup files. (`listSync` does a synchronous directory scan.)
+    final files = <File>[];
+    await for (final entity in dir.list()) {
+      if (entity is File &&
+          p.extension(entity.path).toLowerCase() == '.json') {
+        files.add(entity);
+      }
+    }
     files.sort((a, b) => b.path.compareTo(a.path));
     return files;
   }
@@ -140,8 +144,7 @@ class BackupService {
   final Database _db;
   final BackupStorage _storage;
 
-  Future<int> get schemaVersion async =>
-      await _db.getVersion() as int;
+  Future<int> get schemaVersion async => await _db.getVersion();
 
   /// The full current database as a portable content object.
   Future<BackupContent> snapshot() async {
@@ -228,7 +231,7 @@ class BackupService {
         error: e.message,
       );
     }
-    final error = validate(content!);
+    final error = validate(content);
     return BackupInfo(
       path: file.path,
       exportedAt: _parseDate(meta?['exported_at'] as String?),
@@ -249,9 +252,6 @@ class BackupService {
       if (rows == null) return 'The backup is missing the "$table" table.';
       final ids = <int>{};
       for (final row in rows) {
-        if (row is! Map<String, Object?>) {
-          return 'The "$table" table has invalid rows.';
-        }
         final id = row['id'];
         if (id is int && !ids.add(id)) {
           return 'The "$table" table contains duplicate id $id.';
